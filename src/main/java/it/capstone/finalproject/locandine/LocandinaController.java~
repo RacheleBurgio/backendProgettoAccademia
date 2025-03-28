@@ -1,0 +1,43 @@
+package it.capstone.finalproject.locandine;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+@CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("/api/locandine")
+@RequiredArgsConstructor
+public class LocandinaController {
+    private final LocandineService locandineService;
+
+    @GetMapping("/all")
+    public List<LocandineResponse> getAllLocandine() {
+        return locandineService.getAllLocandine();
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> uploadLocandina(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication) {
+
+        if (file.isEmpty()) {
+            return new ResponseEntity<>("File vuoto", HttpStatus.BAD_REQUEST);
+        }
+
+        String filename = locandineService.store(file);
+        return ResponseEntity.ok(filename);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteLocandina(@PathVariable Long id) {
+        locandineService.deleteLocandina(id);
+    }
+}
+
+

@@ -1,0 +1,62 @@
+package it.capstone.finalproject.auth;
+
+import it.capstone.finalproject.error.InvalidToken;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@Slf4j
+public class AuthController {
+
+    private final AppUserService appUserService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
+        String token = appUserService.authenticateUser(
+                loginRequest.getUsername(),
+                loginRequest.getPassword()
+        );
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @PostMapping("/verifyToken")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> verifyToken(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            log.info("Authorization Header: {}", authorizationHeader);
+
+            // Estrae il token dall'header (rimuove "Bearer ")
+            String token = authorizationHeader.substring(7).trim();
+            log.info("Token: {}", token);
+
+            // Ottiene il nome utente dal token
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            log.info("Username: {}", username);
+
+            // Carica i dettagli dell'utente
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+            // Verifica la validità del token
+            if (jwtTokenUtil.validateToken(token, userDetails)) {
+                return ResponseEntity.ok().body("Token valido");
+            } else {
+                throw new InvalidToken("Token non valido o scaduto");
+            }
+        } catch (Exception e) {
+            log.error("Errore durante la verifica del token: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Errore durante la verifica del token: " + e.getMessage());
+        }
+    }
+}
+
+
+
+

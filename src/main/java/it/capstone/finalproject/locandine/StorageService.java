@@ -1,0 +1,49 @@
+package it.capstone.finalproject.locandine;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
+import java.util.UUID;
+
+@Service
+public class StorageService {
+
+    private final Path rootLocation = Paths.get("upload-dir");
+
+    public String store(MultipartFile file) {
+
+        if (file.isEmpty()) {
+            throw new StorageException("File vuoto: " + file.getOriginalFilename());
+        }
+
+
+        String filename = generateSafeFilename(file.getOriginalFilename());
+        Path destinationFile = this.rootLocation.resolve(filename).normalize();
+
+
+        try (InputStream inputStream = file.getInputStream()) {
+
+            validatePathSafety(destinationFile);
+
+
+            Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/" + filename;
+        } catch (IOException e) {
+            throw new StorageException("Errore durante il salvataggio del file", e);
+        }
+    }
+
+    private String generateSafeFilename(String originalFilename) {
+        return UUID.randomUUID() + "_" +
+                originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_");
+    }
+
+    private void validatePathSafety(Path destinationFile) throws IOException {
+        if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+            throw new SecurityException("Tentativo di salvataggio fuori dalla cartella consentita");
+        }
+    }
+}
