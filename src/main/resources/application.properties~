@@ -1,7 +1,10 @@
 spring.application.name=finalproject
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=${PG_URL}
+server.port=8080
 spring.config.import=optional:file:env.properties
+spring.datasource.username=postgres
+spring.datasource.password=${databasepwd}
 spring.jpa.hibernate.ddl-auto=update
 jwt.secret=${jwt_secret}
 jwt.expiration=86400000
