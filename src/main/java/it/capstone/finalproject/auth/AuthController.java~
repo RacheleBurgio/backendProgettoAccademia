@@ -1,5 +1,6 @@
 package it.capstone.finalproject.auth;
 
+import it.capstone.finalproject.error.InvalidToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,7 @@ public class AuthController {
             if (jwtTokenUtil.validateToken(token, userDetails)) {
                 return ResponseEntity.ok().body("Token valido");
             } else {
-                throw new InvalidTokenException("Token non valido o scaduto");
+                throw new InvalidToken("Token non valido o scaduto");
             }
         } catch (Exception e) {
             log.error("Errore durante la verifica del token: {}", e.getMessage());

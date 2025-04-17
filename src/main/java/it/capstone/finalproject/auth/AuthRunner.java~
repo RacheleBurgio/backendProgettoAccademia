@@ -21,5 +21,10 @@ public class AuthRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // Creazione dell'utente admin se non esiste
+// LoginRequest loginRequest = new LoginRequest();
+//        loginRequest.setUsername("AdminAccademia01");
+//        loginRequest.setPassword("accademiapwd");
+//        appUserService.registerUser(loginRequest.getUsername(), loginRequest.getPassword(), Set.of(Role.ROLE_ADMIN));
+
     }
 }

@@ -20,6 +20,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println("login");
         String token = appUserService.authenticateUser(
                 loginRequest.getUsername(),
                 loginRequest.getPassword()
